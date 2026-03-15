@@ -100,10 +100,11 @@ function EverythingTable({ items }: { items: Item[] }) {
     <table className="w-full text-left text-xs whitespace-nowrap">
       <thead className="bg-muted/50 border-b border-border text-muted-foreground font-bold uppercase tracking-wider">
         <tr>
+          <th className="px-6 py-3 w-10">SI No</th>
           <th className="px-6 py-3">Dept</th>
           <th className="px-6 py-3">Category</th>
           <th className="px-6 py-3">Sub-Cat</th>
-          <th className="px-6 py-3 text-foreground">Item Name</th>
+          <th className="px-6 py-3 text-foreground">Item Name & ID</th>
           <th className="px-6 py-3">Spec 1</th>
           <th className="px-6 py-3">Spec 2</th>
           <th className="px-6 py-3">Spec 3</th>
@@ -111,12 +112,16 @@ function EverythingTable({ items }: { items: Item[] }) {
         </tr>
       </thead>
       <tbody className="divide-y divide-border">
-        {items.map(item => (
+        {items.map((item, index) => (
           <tr key={item.id} className="hover:bg-muted/30 transition-colors">
+            <td className="px-6 py-3 font-mono text-muted-foreground">{index + 1}</td>
             <td className="px-6 py-3 text-muted-foreground">{item.department?.name || "-"}</td>
             <td className="px-6 py-3 text-muted-foreground">{item.category?.name || "-"}</td>
             <td className="px-6 py-3 text-muted-foreground">{item.subCategory?.name || "-"}</td>
-            <td className="px-6 py-3 font-medium text-foreground">{item.name}</td>
+            <td className="px-6 py-3">
+              <div className="font-medium text-foreground">{item.name}</div>
+              <div className="text-[10px] text-muted-foreground uppercase opacity-70 tracking-widest">{item.id}</div>
+            </td>
             <td className="px-6 py-3">{item.spec1 || "-"}</td>
             <td className="px-6 py-3">{item.spec2 || "-"}</td>
             <td className="px-6 py-3">{item.spec3 || "-"}</td>
@@ -133,23 +138,32 @@ function DetailedPriceTable({ items }: { items: Item[] }) {
     <table className="w-full text-left text-xs whitespace-nowrap">
       <thead className="bg-muted/50 border-b border-border text-muted-foreground font-bold uppercase tracking-wider">
         <tr>
+          <th className="px-6 py-3 w-10">SI No</th>
           <th className="px-6 py-3">Detailed Item Info</th>
           <th className="px-6 py-3 text-right">Base Cost</th>
-          <th className="px-6 py-3">Breakdown Breakdown</th>
+          <th className="px-6 py-3">Breakdown Details</th>
           <th className="px-6 py-3 text-right">Margin %</th>
           <th className="px-6 py-3 text-right">Sales Price</th>
         </tr>
       </thead>
       <tbody className="divide-y divide-border">
-        {items.map(item => (
+        {items.map((item, index) => (
           <tr key={item.id} className="hover:bg-muted/30 transition-colors align-top">
+            <td className="px-6 py-3 font-mono text-muted-foreground pt-4">{index + 1}</td>
             <td className="px-6 py-3">
               <div className="font-semibold text-foreground text-sm">{item.name}</div>
               <div className="text-[10px] text-muted-foreground flex items-center gap-2 mt-1">
                 <span>{item.department?.name}</span>
                 <span>•</span>
                 <span>{item.category?.name}</span>
+                {item.subCategory?.name && (
+                  <>
+                    <span>•</span>
+                    <span>{item.subCategory.name}</span>
+                  </>
+                )}
               </div>
+              <div className="text-[9px] font-mono text-muted-foreground/60 mt-0.5">{item.id}</div>
             </td>
             <td className="px-6 py-3 text-right font-medium">${(item.basePrice || 0).toFixed(2)}</td>
             <td className="px-6 py-3">
