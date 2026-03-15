@@ -52,13 +52,16 @@ export default function DepartmentsPage() {
         body: JSON.stringify(formData),
       });
 
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to save");
+      }
       
       toast.success(`Department ${isEdit ? "updated" : "created"}!`);
       setIsModalOpen(false);
       fetchDepartments();
-    } catch (err) {
-      toast.error("An error occurred");
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred");
     }
   };
 

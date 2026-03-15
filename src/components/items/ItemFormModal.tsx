@@ -90,11 +90,14 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Failed to save item.");
+      }
       toast.success(`Item ${isEdit ? "updated" : "created"} successfully!`);
       onSuccess();
-    } catch (err) {
-      toast.error("Failed to save item.");
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred");
     }
   };
 
