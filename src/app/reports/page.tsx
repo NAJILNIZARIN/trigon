@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { FileText, BarChart3, List, Search, Printer, Download } from "lucide-react";
 import { useData } from "@/providers/DataProvider";

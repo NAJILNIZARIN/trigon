@@ -1,3 +1,5 @@
+"use client";
+
 import React, { createContext, useContext, ReactNode } from "react";
 import useSWR, { mutate } from "swr";
 import { Item, Department, Category, SubCategory } from "@/types";
