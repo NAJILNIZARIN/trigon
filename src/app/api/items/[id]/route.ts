@@ -15,14 +15,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     });
     if (!item) return NextResponse.json({ error: "Item not found" }, { status: 404 });
     return NextResponse.json(item);
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch item details" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed to fetch item details" }, { status: 500 });
   }
 }
 
-export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
+    const { id } = params;
     const body = await req.json();
     const { 
       name, departmentId, categoryId, subCategoryId,
@@ -32,7 +32,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     // Delete existing breakdowns and create new ones
     const item = await prisma.item.update({
-      where: { id },
+      where: { id: params.id },
       data: {
         name,
         departmentId: departmentId || null,
@@ -49,30 +49,27 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         status: status || "Active",
         breakdowns: {
           deleteMany: {},
-          create: breakdowns ? breakdowns.map((b: any) => ({
+          create: breakdowns?.map((b: { name: string; amount: number }) => ({
             name: b.name,
             amount: Number(b.amount)
-          })) : []
+          }))
         }
       },
       include: { department: true, category: true, subCategory: true, breakdowns: true }
     });
-
     return NextResponse.json(item);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to update item" }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message || "Failed to update item" }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
-    const { id } = await params;
-    await prisma.item.delete({
-      where: { id },
-    });
+    const { id } = params;
+    await prisma.item.delete({ where: { id: params.id } });
     return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed to delete item" }, { status: 500 });
   }
 }

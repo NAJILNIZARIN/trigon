@@ -116,8 +116,8 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
       }
       toast.success(`Item ${isEdit ? "updated" : "created"} successfully!`);
       onSuccess();
-    } catch (err: any) {
-      toast.error(err.message || "An error occurred");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "An error occurred");
     }
   };
 
