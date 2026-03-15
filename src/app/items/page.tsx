@@ -27,9 +27,13 @@ export default function ItemsPage() {
         fetch("/api/departments"),
         fetch("/api/categories")
       ]);
-      setItems(await itemsRes.json());
-      setDepartments(await deptsRes.json());
-      setCategories(await catsRes.json());
+      const itemsData = await itemsRes.json();
+      const deptsData = await deptsRes.json();
+      const catsData = await catsRes.json();
+      
+      setItems(Array.isArray(itemsData) ? itemsData : []);
+      setDepartments(Array.isArray(deptsData) ? deptsData : []);
+      setCategories(Array.isArray(catsData) ? catsData : []);
     } catch (err) {
       toast.error("Failed to load data.");
     } finally {
@@ -164,13 +168,13 @@ export default function ItemsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-right font-medium text-muted-foreground">
-                        ${item.basePrice.toFixed(2)}
+                        ${(item.basePrice || 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-right text-muted-foreground">
-                        {item.margin}%
+                        {item.margin || 0}%
                       </td>
                       <td className="px-6 py-4 text-right font-bold text-foreground">
-                        ${item.finalPrice.toFixed(2)}
+                        ${(item.finalPrice || 0).toFixed(2)}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
