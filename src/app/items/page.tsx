@@ -10,14 +10,7 @@ import { useData } from "@/providers/DataProvider";
 import { Item } from "@/types";
 
 export default function ItemsPage() {
-  const { 
-    items, 
-    departments, 
-    categories, 
-    subCategories, 
-    isLoading, 
-    refreshItems 
-  } = useData();
+  const { items, itemsLoading, refreshItems, departments, categories, subCategories } = useData();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -101,7 +94,7 @@ export default function ItemsPage() {
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden min-h-[400px]">
-        {isLoading && items.length === 0 ? (
+        {itemsLoading && items.length === 0 ? (
            <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-3">
              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
              <span className="text-sm font-medium">Loading items...</span>

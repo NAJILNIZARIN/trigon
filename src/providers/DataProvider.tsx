@@ -12,6 +12,10 @@ interface DataContextType {
   categories: Category[];
   subCategories: SubCategory[];
   isLoading: boolean;
+  itemsLoading: boolean;
+  deptsLoading: boolean;
+  catsLoading: boolean;
+  subsLoading: boolean;
   isValidating: boolean;
   refreshItems: () => void;
   refreshAll: () => void;
@@ -59,6 +63,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
       categories, 
       subCategories, 
       isLoading,
+      itemsLoading,
+      deptsLoading,
+      catsLoading,
+      subsLoading,
       isValidating,
       refreshItems,
       refreshAll

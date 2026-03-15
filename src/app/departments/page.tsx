@@ -10,7 +10,7 @@ import { Department } from "@/types";
 
 
 export default function DepartmentsPage() {
-  const { departments, isLoading, refreshAll } = useData();
+  const { departments, deptsLoading, refreshAll } = useData();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -101,7 +101,7 @@ export default function DepartmentsPage() {
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        {isLoading && departments.length === 0 ? (
+        {deptsLoading && departments.length === 0 ? (
           <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-3">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             <span className="text-sm font-medium">Loading departments...</span>

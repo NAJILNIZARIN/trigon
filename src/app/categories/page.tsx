@@ -9,7 +9,7 @@ import { Category, Department } from "@/types";
 
 
 export default function CategoriesPage() {
-  const { categories, departments, isLoading, refreshAll } = useData();
+  const { categories, departments, catsLoading, refreshAll } = useData();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -96,8 +96,8 @@ export default function CategoriesPage() {
         <button 
           onClick={openCreate}
           className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all shadow-sm active:scale-95"
-          disabled={isLoading || departments.length === 0}
-          title={!isLoading && departments.length === 0 ? "Create a department first" : ""}
+          disabled={catsLoading || departments.length === 0}
+          title={!catsLoading && departments.length === 0 ? "Create a department first" : ""}
         >
           <Plus className="w-4 h-4" />
           New Category
@@ -105,7 +105,7 @@ export default function CategoriesPage() {
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        {isLoading && categories.length === 0 ? (
+        {catsLoading && categories.length === 0 ? (
            <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-3">
              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
              <span className="text-sm font-medium">Loading categories...</span>

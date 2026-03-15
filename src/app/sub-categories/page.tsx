@@ -9,8 +9,8 @@ import { Category, SubCategory } from "@/types";
 
 
 export default function SubCategoriesPage() {
-  const { subCategories, categories, isLoading, refreshAll } = useData();
-  const loading = isLoading && subCategories.length === 0;
+  const { subCategories, categories, subsLoading, refreshAll } = useData();
+  const loading = subsLoading && subCategories.length === 0;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSubCategory, setEditingSubCategory] = useState<SubCategory | null>(null);
   const [formData, setFormData] = useState({ name: "", categoryId: "" });
