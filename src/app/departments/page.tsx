@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, FolderTree, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
