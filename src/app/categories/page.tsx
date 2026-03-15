@@ -1,24 +1,12 @@
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, ListTree, AlertCircle, FolderTree } from "lucide-react";
 import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
 import { useData } from "@/providers/DataProvider";
+import { Category, Department } from "@/types";
 
-interface Department {
-  id: string;
-  name: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  createdAt: string;
-  departmentId: string;
-  department: Department;
-}
 
 export default function CategoriesPage() {
   const { categories, departments, isLoading, refreshAll } = useData();

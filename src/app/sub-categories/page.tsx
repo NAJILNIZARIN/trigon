@@ -1,22 +1,10 @@
-"use client";
-
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2, Layers } from "lucide-react";
 import toast from "react-hot-toast";
 import { useData } from "@/providers/DataProvider";
+import { Category, SubCategory } from "@/types";
 
-interface Category {
-  id: string;
-  name: string;
-}
 
-interface SubCategory {
-  id: string;
-  name: string;
-  categoryId: string;
-  category: Category;
-}
 
 export default function SubCategoriesPage() {
   const { subCategories, categories, isLoading, refreshAll } = useData();

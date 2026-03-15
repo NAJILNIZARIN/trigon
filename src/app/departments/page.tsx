@@ -1,17 +1,13 @@
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, FolderTree, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
 import { useData } from "@/providers/DataProvider";
+import { Department } from "@/types";
 
-interface Department {
-  id: string;
-  name: string;
-  createdAt: string;
-}
+
 
 export default function DepartmentsPage() {
   const { departments, isLoading, refreshAll } = useData();

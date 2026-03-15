@@ -1,15 +1,14 @@
-"use client";
-
 import React, { createContext, useContext, ReactNode } from "react";
 import useSWR, { mutate } from "swr";
+import { Item, Department, Category, SubCategory } from "@/types";
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface DataContextType {
-  items: any[];
-  departments: any[];
-  categories: any[];
-  subCategories: any[];
+  items: Item[];
+  departments: Department[];
+  categories: Category[];
+  subCategories: SubCategory[];
   isLoading: boolean;
   isValidating: boolean;
   refreshItems: () => void;
@@ -19,22 +18,22 @@ interface DataContextType {
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const { data: items = [], isLoading: itemsLoading, isValidating: itemsValidating } = useSWR("/api/items", fetcher, {
+  const { data: items = [], isLoading: itemsLoading, isValidating: itemsValidating } = useSWR<Item[]>("/api/items", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 10000,
   });
   
-  const { data: departments = [], isLoading: deptsLoading, isValidating: deptsValidating } = useSWR("/api/departments", fetcher, {
+  const { data: departments = [], isLoading: deptsLoading, isValidating: deptsValidating } = useSWR<Department[]>("/api/departments", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
   });
   
-  const { data: categories = [], isLoading: catsLoading, isValidating: catsValidating } = useSWR("/api/categories", fetcher, {
+  const { data: categories = [], isLoading: catsLoading, isValidating: catsValidating } = useSWR<Category[]>("/api/categories", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
   });
   
-  const { data: subCategories = [], isLoading: subsLoading, isValidating: subsValidating } = useSWR("/api/sub-categories", fetcher, {
+  const { data: subCategories = [], isLoading: subsLoading, isValidating: subsValidating } = useSWR<SubCategory[]>("/api/sub-categories", fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000,
   });

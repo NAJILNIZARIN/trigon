@@ -1,9 +1,7 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { FileText, BarChart3, List, Search, Printer, Download, Filter } from "lucide-react";
-import toast from "react-hot-toast";
+import React, { useState } from "react";
+import { FileText, BarChart3, List, Search, Printer, Download } from "lucide-react";
 import { useData } from "@/providers/DataProvider";
+import { Item } from "@/types";
 
 type ReportType = "everything" | "detailed" | "bulk";
 
@@ -12,22 +10,9 @@ export default function ReportsPage() {
   const { items, isLoading } = useData();
   const [searchQuery, setSearchQuery] = useState("");
 
-interface Item {
-  id: string;
-  name: string;
-  department?: { name: string };
-  category?: { name: string };
-  subCategory?: { name: string };
-  spec1?: string;
-  spec2?: string;
-  spec3?: string;
-  unit?: string;
-  finalPrice?: number;
-  basePrice?: number;
-  breakdowns?: { name: string; amount: number }[];
-}
 
-  const filteredItems = (items as Item[]).filter((item: Item) => 
+
+  const filteredItems = items.filter((item: Item) => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.department?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -108,7 +93,7 @@ interface Item {
   );
 }
 
-function EverythingTable({ items }: { items: any[] }) {
+function EverythingTable({ items }: { items: Item[] }) {
   return (
     <table className="w-full text-left text-xs whitespace-nowrap">
       <thead className="bg-muted/50 border-b border-border text-muted-foreground font-bold uppercase tracking-wider">
@@ -141,7 +126,7 @@ function EverythingTable({ items }: { items: any[] }) {
   );
 }
 
-function DetailedPriceTable({ items }: { items: any[] }) {
+function DetailedPriceTable({ items }: { items: Item[] }) {
   return (
     <table className="w-full text-left text-xs whitespace-nowrap">
       <thead className="bg-muted/50 border-b border-border text-muted-foreground font-bold uppercase tracking-wider">
@@ -184,7 +169,7 @@ function DetailedPriceTable({ items }: { items: any[] }) {
   );
 }
 
-function BulkPriceTable({ items }: { items: any[] }) {
+function BulkPriceTable({ items }: { items: Item[] }) {
   // Simple grouping by category for bulk view
   const categories = Array.from(new Set(items.map(i => i.category?.name || "Uncategorized")));
 

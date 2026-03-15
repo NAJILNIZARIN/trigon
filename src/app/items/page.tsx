@@ -1,12 +1,11 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Plus, Edit2, Trash2, Package, Search, Filter, AlertCircle, Eye } from "lucide-react";
 import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
 import { ItemFormModal } from "@/components/items/ItemFormModal";
 import Link from "next/link";
 import { useData } from "@/providers/DataProvider";
+import { Item } from "@/types";
 
 export default function ItemsPage() {
   const { 
@@ -21,7 +20,7 @@ export default function ItemsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   const refreshData = () => {
     refreshItems();
@@ -42,12 +41,12 @@ export default function ItemsPage() {
     }
   };
 
-  const openEdit = (item: any) => {
+  const openEdit = (item: Item) => {
     // We need to fetch item details with breakdowns to populate the form properly
     fetch(`/api/items/${item.id}`)
       .then(res => res.json())
       .then(data => {
-        setSelectedItem(data);
+        setSelectedItem(data as Item);
         setIsFormOpen(true);
       })
       .catch(() => toast.error("Failed to fetch item details"));
@@ -58,22 +57,9 @@ export default function ItemsPage() {
     setIsFormOpen(true);
   };
 
-interface Item {
-  id: string;
-  name: string;
-  department?: { name: string };
-  category?: { name: string };
-  subCategory?: { name: string };
-  spec1?: string;
-  spec2?: string;
-  spec3?: string;
-  unit?: string;
-  finalPrice?: number;
-  basePrice?: number;
-  status?: string;
-}
 
-  const filteredItems = (items as Item[]).filter((item: Item) => 
+
+  const filteredItems = items.filter((item: Item) => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.department?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||

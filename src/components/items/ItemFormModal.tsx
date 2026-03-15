@@ -1,25 +1,19 @@
-"use client";
-
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, Trash2, Calculator } from "lucide-react";
 import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
+import { Item, Department, Category, SubCategory, Breakdown } from "@/types";
 
-interface Breakdown {
-  id?: string;
-  name: string;
-  amount: number;
-}
+
 
 interface ItemFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
-  item: any | null;
-  departments: any[];
-  categories: any[];
-  subCategories: any[];
+  item: Item | null;
+  departments: Department[];
+  categories: Category[];
+  subCategories: SubCategory[];
 }
 
 export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, categories, subCategories }: ItemFormModalProps) {
@@ -55,7 +49,7 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
         margin: item.margin || 0,
         status: item.status || "Active",
       });
-      setBreakdowns(item.breakdowns ? item.breakdowns.map((b: any) => ({ name: b.name, amount: b.amount })) : []);
+      setBreakdowns(item.breakdowns ? item.breakdowns.map((b: Breakdown) => ({ name: b.name, amount: b.amount })) : []);
     } else {
       // Reset form for new item when modal opens without an item
       setFormData({
@@ -175,7 +169,7 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
                 className="w-full bg-background border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm disabled:opacity-50"
               >
                 <option value="">Select Category</option>
-                {filteredCategories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {filteredCategories.map((c: Category) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
           </div>
@@ -190,7 +184,7 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
                 className="w-full bg-background border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm disabled:opacity-50"
               >
                 <option value="">Select Sub-Category</option>
-                {filteredSubCategories.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+                {filteredSubCategories.map((s: SubCategory) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
