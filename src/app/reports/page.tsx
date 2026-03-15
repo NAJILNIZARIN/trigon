@@ -168,9 +168,9 @@ function DetailedPriceTable({ items }: { items: Item[] }) {
             <td className="px-6 py-3 text-right font-medium">${(item.basePrice || 0).toFixed(2)}</td>
             <td className="px-6 py-3">
               <div className="flex flex-wrap gap-2 max-w-sm">
-                {(item.breakdowns || []).map((b: any, i: number) => (
+                {(Array.isArray(item.breakdowns) ? item.breakdowns : []).map((row: any, i: number) => (
                   <span key={i} className="bg-secondary/50 px-1.5 py-0.5 rounded text-[10px] border border-border">
-                    {b.name}: ${b.amount}
+                    {row.name}: ${row.amount}
                   </span>
                 ))}
                 {(!item.breakdowns || item.breakdowns.length === 0) && <span className="text-muted-foreground italic">No extra costs</span>}

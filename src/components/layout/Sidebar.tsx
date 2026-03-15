@@ -2,18 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, ListTree, FolderTree, LayoutDashboard, Layers, FileText } from "lucide-react";
+import { Package, ListTree, FolderTree, LayoutDashboard, Layers, FileText, Briefcase, LogOut, CheckSquare } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const role = session?.user?.role;
 
-  const links = [
-    { href: "/items", label: "Items", icon: Package },
-    { href: "/departments", label: "Departments", icon: FolderTree },
-    { href: "/categories", label: "Categories", icon: ListTree },
-    { href: "/sub-categories", label: "Sub-Categories", icon: Layers },
-    { href: "/reports", label: "Inventory Reports", icon: FileText },
+  const allLinks = [
+    { href: "/items", label: "Items", icon: Package, roles: ["ADMIN", "SUPERVISOR", "WORKER"] },
+    { href: "/departments", label: "Departments", icon: FolderTree, roles: ["ADMIN", "SUPERVISOR"] },
+    { href: "/categories", label: "Categories", icon: ListTree, roles: ["ADMIN", "SUPERVISOR"] },
+    { href: "/sub-categories", label: "Sub-Categories", icon: Layers, roles: ["ADMIN", "SUPERVISOR"] },
+    { href: "/reports", label: "Inventory Reports", icon: FileText, roles: ["ADMIN", "SUPERVISOR"] },
+    { href: "/quotations", label: "Quotations", icon: Briefcase, roles: ["ADMIN", "SUPERVISOR"] },
+    { href: "/work", label: "My Work", icon: CheckSquare, roles: ["ADMIN", "WORKER"] },
   ];
+
+  const links = allLinks.filter(link => role ? link.roles.includes(role) : false);
 
   return (
     <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-xl hidden md:flex flex-col">
@@ -43,6 +50,16 @@ export default function Sidebar() {
           );
         })}
       </nav>
+
+      <div className="p-4 border-t border-border">
+        <button
+          onClick={() => signOut()}
+          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200 font-medium"
+        >
+          <LogOut className="w-5 h-5" />
+          Logout
+        </button>
+      </div>
     </aside>
   );
 }
