@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { CheckSquare, Clock, AlertTriangle, ChevronRight, MessageSquare, Plus, Loader2, Send } from "lucide-react";
 import useSWR, { useSWRConfig } from "swr";
