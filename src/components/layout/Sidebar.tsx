@@ -18,10 +18,10 @@ export default function Sidebar() {
   return (
     <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-xl hidden md:flex flex-col">
       <div className="h-16 flex items-center px-6 border-b border-border">
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary">
+        <Link href="/" className="flex items-center gap-2 font-bold text-xl tracking-tight text-primary hover:opacity-80 transition-opacity">
           <LayoutDashboard className="w-6 h-6" />
           <span>ERP System</span>
-        </div>
+        </Link>
       </div>
       <nav className="flex-1 p-4 space-y-1">
         {links.map((link) => {
