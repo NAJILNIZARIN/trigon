@@ -20,9 +20,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { 
       name, departmentId, categoryId, subCategoryId,
@@ -32,7 +32,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
     // Delete existing breakdowns and create new ones
     const item = await prisma.item.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         departmentId: departmentId || null,
@@ -64,10 +64,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
-    await prisma.item.delete({ where: { id: params.id } });
+    const { id } = await params;
+    await prisma.item.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     return NextResponse.json({ error: (error as Error).message || "Failed to delete item" }, { status: 500 });
