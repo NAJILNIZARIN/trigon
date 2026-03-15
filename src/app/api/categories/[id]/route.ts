@@ -14,8 +14,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       include: { department: true },
     });
     return NextResponse.json(category);
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to update category" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed" }, { status: 500 });
   }
 }
 
@@ -26,7 +26,8 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       where: { id },
     });
     return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to delete category" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed" }, { status: 500 });
   }
 }
+```

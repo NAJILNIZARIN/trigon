@@ -48,8 +48,8 @@ export default function CategoriesPage() {
       toast.success(`Category ${isEdit ? "updated" : "created"}!`);
       setIsModalOpen(false);
       refreshData();
-    } catch (err: any) {
-      toast.error(err.message || "An error occurred");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "An error occurred");
     }
   };
 
