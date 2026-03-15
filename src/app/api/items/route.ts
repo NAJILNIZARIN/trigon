@@ -13,8 +13,8 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(items);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to fetch items" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed to fetch items" }, { status: 500 });
   }
 }
 export async function POST(req: Request) {
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         finalPrice: Number(finalPrice),
         status: status || "Active",
         breakdowns: breakdowns && breakdowns.length > 0 ? {
-          create: breakdowns.map((b: any) => ({
+          create: breakdowns.map((b: { name: string; amount: number }) => ({
             name: b.name,
             amount: Number(b.amount)
           }))
@@ -56,8 +56,8 @@ export async function POST(req: Request) {
     });
     
     return NextResponse.json(item, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(error);
-    return NextResponse.json({ error: error.message || "Failed to create item" }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message || "Failed to create item" }, { status: 500 });
   }
 }

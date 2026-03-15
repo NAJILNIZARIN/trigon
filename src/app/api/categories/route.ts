@@ -8,8 +8,8 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(categories);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to fetch categories" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed to fetch categories" }, { status: 500 });
   }
 }
 
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       include: { department: true },
     });
     return NextResponse.json(category, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to create category" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed to create category" }, { status: 500 });
   }
 }

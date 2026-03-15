@@ -3,12 +3,10 @@ import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const departments = await prisma.department.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    const departments = await prisma.department.findMany();
     return NextResponse.json(departments);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to fetch departments" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed" }, { status: 500 });
   }
 }
 
@@ -22,7 +20,7 @@ export async function POST(req: Request) {
       data: { name },
     });
     return NextResponse.json(department, { status: 201 });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to create department" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed" }, { status: 500 });
   }
 }
