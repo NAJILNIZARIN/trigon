@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -15,8 +13,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       include: { category: true },
     });
     return NextResponse.json(subCategory);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to update sub-category" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed to update sub-category" }, { status: 500 });
   }
 }
 
@@ -25,7 +23,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const { id } = await params;
     await prisma.subCategory.delete({ where: { id } });
     return NextResponse.json({ message: "Sub-category deleted" });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Failed to delete sub-category" }, { status: 500 });
+  } catch (error: unknown) {
+    return NextResponse.json({ error: (error as Error).message || "Failed to delete sub-category" }, { status: 500 });
   }
 }
