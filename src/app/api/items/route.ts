@@ -13,8 +13,8 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(items);
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch items" }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Failed to fetch items" }, { status: 500 });
   }
 }
 
@@ -47,8 +47,8 @@ export async function POST(req: Request) {
     });
     
     return NextResponse.json(item, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to create item" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to create item" }, { status: 500 });
   }
 }

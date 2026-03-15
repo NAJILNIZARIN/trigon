@@ -9,8 +9,8 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
     return NextResponse.json(departments);
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch departments" }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Failed to fetch departments" }, { status: 500 });
   }
 }
 
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       data: { name },
     });
     return NextResponse.json(department, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to create department" }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || "Failed to create department" }, { status: 500 });
   }
 }
