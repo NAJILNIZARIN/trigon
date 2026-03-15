@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -9,6 +7,8 @@ export async function GET() {
       include: { 
         department: true,
         category: true,
+        subCategory: true,
+        breakdowns: true
       },
       orderBy: { createdAt: "desc" },
     });
@@ -17,11 +17,14 @@ export async function GET() {
     return NextResponse.json({ error: error.message || "Failed to fetch items" }, { status: 500 });
   }
 }
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, departmentId, categoryId, basePrice, margin, finalPrice, status, breakdowns } = body;
+    const { 
+      name, departmentId, categoryId, subCategoryId,
+      spec1, spec2, spec3, unit, tags,
+      basePrice, margin, finalPrice, status, breakdowns 
+    } = body;
     
     if (!name || basePrice === undefined || margin === undefined) {
       return NextResponse.json({ error: "Name, Base Price, and Margin are required" }, { status: 400 });
@@ -32,6 +35,12 @@ export async function POST(req: Request) {
         name,
         departmentId: departmentId || null,
         categoryId: categoryId || null,
+        subCategoryId: subCategoryId || null,
+        spec1: spec1 || null,
+        spec2: spec2 || null,
+        spec3: spec3 || null,
+        unit: unit || "Nos",
+        tags: tags || null,
         basePrice: Number(basePrice),
         margin: Number(margin),
         finalPrice: Number(finalPrice),
@@ -43,7 +52,7 @@ export async function POST(req: Request) {
           }))
         } : undefined
       },
-      include: { department: true, category: true, breakdowns: true }
+      include: { department: true, category: true, subCategory: true, breakdowns: true }
     });
     
     return NextResponse.json(item, { status: 201 });

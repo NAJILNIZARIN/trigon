@@ -6,44 +6,28 @@ import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
 import { ItemFormModal } from "@/components/items/ItemFormModal";
 import Link from "next/link";
+import { useData } from "@/providers/DataProvider";
 
 export default function ItemsPage() {
-  const [items, setItems] = useState<any[]>([]);
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { 
+    items, 
+    departments, 
+    categories, 
+    subCategories, 
+    isLoading, 
+    refreshItems 
+  } = useData();
   
   const [searchQuery, setSearchQuery] = useState("");
-  
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [itemsRes, deptsRes, catsRes] = await Promise.all([
-        fetch("/api/items"),
-        fetch("/api/departments"),
-        fetch("/api/categories")
-      ]);
-      const itemsData = await itemsRes.json();
-      const deptsData = await deptsRes.json();
-      const catsData = await catsRes.json();
-      
-      setItems(Array.isArray(itemsData) ? itemsData : []);
-      setDepartments(Array.isArray(deptsData) ? deptsData : []);
-      setCategories(Array.isArray(catsData) ? catsData : []);
-    } catch (err) {
-      toast.error("Failed to load data.");
-    } finally {
-      setIsLoading(false);
-    }
+  const refreshData = () => {
+    refreshItems();
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+
 
   const handleDelete = async () => {
     if (!selectedItem) return;
@@ -52,7 +36,7 @@ export default function ItemsPage() {
       if (!res.ok) throw new Error("Failed to delete");
       toast.success("Item deleted!");
       setIsDeleteModalOpen(false);
-      fetchData();
+      refreshData();
     } catch (err) {
       toast.error("An error occurred while deleting.");
     }
@@ -74,10 +58,26 @@ export default function ItemsPage() {
     setIsFormOpen(true);
   };
 
-  const filteredItems = items.filter(item => 
+interface Item {
+  id: string;
+  name: string;
+  department?: { name: string };
+  category?: { name: string };
+  subCategory?: { name: string };
+  spec1?: string;
+  spec2?: string;
+  spec3?: string;
+  unit?: string;
+  finalPrice?: number;
+  basePrice?: number;
+  status?: string;
+}
+
+  const filteredItems = (items as Item[]).filter((item: Item) => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.department?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    item.category?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.subCategory?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -112,8 +112,8 @@ export default function ItemsPage() {
         </button>
       </div>
 
-      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        {isLoading ? (
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden min-h-[400px]">
+        {isLoading && items.length === 0 ? (
            <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-3">
              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
              <span className="text-sm font-medium">Loading items...</span>
@@ -124,10 +124,12 @@ export default function ItemsPage() {
               <thead className="bg-muted/50 border-b border-border text-muted-foreground">
                 <tr>
                   <th className="px-6 py-4 font-medium">Item Info</th>
-                  <th className="px-6 py-4 font-medium">Classification</th>
-                  <th className="px-6 py-4 font-medium text-right">Base Price</th>
-                  <th className="px-6 py-4 font-medium text-right">Margin</th>
-                  <th className="px-6 py-4 font-medium text-right">Final Price</th>
+                  <th className="px-6 py-4 font-medium">Spec 1</th>
+                  <th className="px-6 py-4 font-medium">Spec 2</th>
+                  <th className="px-6 py-4 font-medium">Spec 3</th>
+                  <th className="px-6 py-4 font-medium">Unit</th>
+                  <th className="px-6 py-4 font-medium">Hierarchy</th>
+                  <th className="px-6 py-4 font-medium text-right">Price</th>
                   <th className="px-6 py-4 font-medium text-center">Status</th>
                   <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
@@ -158,23 +160,29 @@ export default function ItemsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex flex-col gap-1 text-xs">
-                          <span className="bg-secondary text-secondary-foreground px-2 py-0.5 rounded-md w-max border border-border">
-                            Dept: {item.department?.name || '-'}
-                          </span>
-                          <span className="bg-accent text-accent-foreground px-2 py-0.5 rounded-md w-max border border-border text-muted-foreground">
-                            Cat: {item.category?.name || '-'}
-                          </span>
+                        <span className="text-muted-foreground">{item.spec1 || '-'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-muted-foreground">{item.spec2 || '-'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-muted-foreground">{item.spec3 || '-'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="bg-muted px-2 py-1 rounded text-xs">{item.unit || 'Nos'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-0.5 text-[10px] leading-tight">
+                          <span className="text-primary font-medium truncate max-w-[100px]" title={item.department?.name}>D: {item.department?.name || '-'}</span>
+                          <span className="text-muted-foreground truncate max-w-[100px]" title={item.category?.name}>C: {item.category?.name || '-'}</span>
+                          <span className="text-muted-foreground/70 truncate max-w-[100px]" title={item.subCategory?.name}>S: {item.subCategory?.name || '-'}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-right font-medium text-muted-foreground">
-                        ${(item.basePrice || 0).toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 text-right text-muted-foreground">
-                        {item.margin || 0}%
-                      </td>
-                      <td className="px-6 py-4 text-right font-bold text-foreground">
-                        ${(item.finalPrice || 0).toFixed(2)}
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
+                        <div className="flex flex-col items-end">
+                          <span className="font-bold text-foreground">${(item.finalPrice || 0).toFixed(2)}</span>
+                          <span className="text-[10px] text-muted-foreground">Base: ${(item.basePrice || 0).toFixed(2)}</span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
@@ -222,10 +230,13 @@ export default function ItemsPage() {
       <ItemFormModal 
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        onSuccess={() => { setIsFormOpen(false); fetchData(); }}
-        item={selectedItem}
+        onSuccess={() => {
+          setIsFormOpen(false);
+          refreshData();
+        }}item={selectedItem}
         departments={departments}
         categories={categories}
+        subCategories={subCategories}
       />
 
       <Modal 

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, ListTree, AlertCircle, FolderTree } from "lucide-react";
 import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
+import { useData } from "@/providers/DataProvider";
 
 interface Department {
   id: string;
@@ -19,9 +20,7 @@ interface Category {
 }
 
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { categories, departments, isLoading, refreshAll } = useData();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -29,27 +28,11 @@ export default function CategoriesPage() {
   
   const [formData, setFormData] = useState({ name: "", departmentId: "" });
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [catRes, deptRes] = await Promise.all([
-        fetch("/api/categories"),
-        fetch("/api/departments")
-      ]);
-      const catData = await catRes.json();
-      const deptData = await deptRes.json();
-      setCategories(Array.isArray(catData) ? catData : []);
-      setDepartments(Array.isArray(deptData) ? deptData : []);
-    } catch (err) {
-      toast.error("Failed to load data.");
-    } finally {
-      setIsLoading(false);
-    }
+  const refreshData = () => {
+    refreshAll();
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +58,7 @@ export default function CategoriesPage() {
       
       toast.success(`Category ${isEdit ? "updated" : "created"}!`);
       setIsModalOpen(false);
-      fetchData();
+      refreshData();
     } catch (err: any) {
       toast.error(err.message || "An error occurred");
     }
@@ -91,7 +74,7 @@ export default function CategoriesPage() {
       
       toast.success("Category deleted!");
       setIsDeleteModalOpen(false);
-      fetchData();
+      refreshData();
     } catch (err) {
       toast.error("An error occurred while deleting.");
     }
@@ -133,7 +116,7 @@ export default function CategoriesPage() {
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        {isLoading ? (
+        {isLoading && categories.length === 0 ? (
            <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-3">
              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
              <span className="text-sm font-medium">Loading categories...</span>

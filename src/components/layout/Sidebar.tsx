@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Package, ListTree, FolderTree, LayoutDashboard } from "lucide-react";
+import { Package, ListTree, FolderTree, LayoutDashboard, Layers, FileText } from "lucide-react";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -11,6 +11,8 @@ export default function Sidebar() {
     { href: "/items", label: "Items", icon: Package },
     { href: "/departments", label: "Departments", icon: FolderTree },
     { href: "/categories", label: "Categories", icon: ListTree },
+    { href: "/sub-categories", label: "Sub-Categories", icon: Layers },
+    { href: "/reports", label: "Inventory Reports", icon: FileText },
   ];
 
   return (

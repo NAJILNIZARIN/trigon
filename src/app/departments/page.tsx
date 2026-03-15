@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Plus, Edit2, Trash2, FolderTree, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
+import { useData } from "@/providers/DataProvider";
 
 interface Department {
   id: string;
@@ -12,30 +13,18 @@ interface Department {
 }
 
 export default function DepartmentsPage() {
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { departments, isLoading, refreshAll } = useData();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [formData, setFormData] = useState({ name: "" });
 
-  const fetchDepartments = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/departments");
-      const data = await res.json();
-      setDepartments(Array.isArray(data) ? data : []);
-    } catch (err) {
-      toast.error("Failed to load departments.");
-    } finally {
-      setIsLoading(false);
-    }
+  const refreshData = () => {
+    refreshAll();
   };
 
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
+
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +48,7 @@ export default function DepartmentsPage() {
       
       toast.success(`Department ${isEdit ? "updated" : "created"}!`);
       setIsModalOpen(false);
-      fetchDepartments();
+      refreshData();
     } catch (err: any) {
       toast.error(err.message || "An error occurred");
     }
@@ -75,7 +64,7 @@ export default function DepartmentsPage() {
       
       toast.success("Department deleted!");
       setIsDeleteModalOpen(false);
-      fetchDepartments();
+      refreshData();
     } catch (err) {
       toast.error("An error occurred while deleting.");
     }
@@ -115,7 +104,7 @@ export default function DepartmentsPage() {
       </div>
 
       <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
-        {isLoading ? (
+        {isLoading && departments.length === 0 ? (
           <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-3">
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             <span className="text-sm font-medium">Loading departments...</span>

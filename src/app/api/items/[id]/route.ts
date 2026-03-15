@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -11,6 +9,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       include: { 
         department: true, 
         category: true, 
+        subCategory: true,
         breakdowns: true 
       }
     });
@@ -25,7 +24,11 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
   try {
     const { id } = await params;
     const body = await req.json();
-    const { name, departmentId, categoryId, basePrice, margin, finalPrice, status, breakdowns } = body;
+    const { 
+      name, departmentId, categoryId, subCategoryId,
+      spec1, spec2, spec3, unit, tags,
+      basePrice, margin, finalPrice, status, breakdowns 
+    } = body;
 
     // Delete existing breakdowns and create new ones
     const item = await prisma.item.update({
@@ -34,6 +37,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         name,
         departmentId: departmentId || null,
         categoryId: categoryId || null,
+        subCategoryId: subCategoryId || null,
+        spec1: spec1 || null,
+        spec2: spec2 || null,
+        spec3: spec3 || null,
+        unit: unit || "Nos",
+        tags: tags || null,
         basePrice: Number(basePrice),
         margin: Number(margin),
         finalPrice: Number(finalPrice),
@@ -46,7 +55,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
           })) : []
         }
       },
-      include: { department: true, category: true, breakdowns: true }
+      include: { department: true, category: true, subCategory: true, breakdowns: true }
     });
 
     return NextResponse.json(item);

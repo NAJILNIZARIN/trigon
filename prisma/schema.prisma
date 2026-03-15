@@ -17,29 +17,50 @@ model Department {
 }
 
 model Category {
-  id           String     @id @default(cuid())
+  id             String        @id @default(cuid())
+  name           String
+  departmentId   String
+  department     Department    @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  subCategories  SubCategory[]
+  items          Item[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model SubCategory {
+  id           String   @id @default(cuid())
   name         String
-  departmentId String
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  categoryId   String
+  category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   items        Item[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Item {
-  id           String      @id @default(cuid())
-  name         String
-  departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  categoryId   String?
-  category     Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  basePrice    Float
-  margin       Float
-  finalPrice   Float
-  status       String      @default("Active")
-  breakdowns   Breakdown[]
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id            String       @id @default(cuid())
+  name          String
+  departmentId  String?
+  department    Department?  @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  categoryId    String?
+  category      Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  subCategoryId String?
+  subCategory   SubCategory? @relation(fields: [subCategoryId], references: [id], onDelete: SetNull)
+  
+  // New Spec Fields from Wireframe
+  spec1         String?
+  spec2         String?
+  spec3         String?
+  unit          String?      @default("Nos")
+  tags          String?
+  
+  basePrice     Float
+  margin        Float
+  finalPrice    Float
+  status        String       @default("Active")
+  breakdowns    Breakdown[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Breakdown {
@@ -51,3 +72,4 @@ model Breakdown {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+

@@ -18,13 +18,20 @@ interface ItemFormModalProps {
   item: any | null;
   departments: any[];
   categories: any[];
+  subCategories: any[];
 }
 
-export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, categories }: ItemFormModalProps) {
+export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, categories, subCategories }: ItemFormModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     departmentId: "",
     categoryId: "",
+    subCategoryId: "",
+    spec1: "",
+    spec2: "",
+    spec3: "",
+    unit: "Nos",
+    tags: "",
     basePrice: 0,
     margin: 0,
     status: "Active",
@@ -37,16 +44,29 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
         name: item.name || "",
         departmentId: item.departmentId || "",
         categoryId: item.categoryId || "",
+        subCategoryId: item.subCategoryId || "",
+        spec1: item.spec1 || "",
+        spec2: item.spec2 || "",
+        spec3: item.spec3 || "",
+        unit: item.unit || "Nos",
+        tags: item.tags || "",
         basePrice: item.basePrice || 0,
         margin: item.margin || 0,
         status: item.status || "Active",
       });
       setBreakdowns(item.breakdowns ? item.breakdowns.map((b: any) => ({ name: b.name, amount: b.amount })) : []);
     } else {
+      // Reset form for new item when modal opens without an item
       setFormData({
         name: "",
         departmentId: "",
         categoryId: "",
+        subCategoryId: "",
+        spec1: "",
+        spec2: "",
+        spec3: "",
+        unit: "Nos",
+        tags: "",
         basePrice: 0,
         margin: 0,
         status: "Active",
@@ -57,9 +77,12 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
 
   const finalPrice = formData.basePrice + (formData.basePrice * (formData.margin / 100));
   
-  // Filter categories by selected department
   const filteredCategories = formData.departmentId 
     ? categories.filter(c => c.departmentId === formData.departmentId)
+    : [];
+
+  const filteredSubCategories = formData.categoryId
+    ? subCategories.filter(s => s.categoryId === formData.categoryId)
     : [];
 
   const handleSave = async (e: React.FormEvent) => {
@@ -132,7 +155,7 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
               <select
                 value={formData.departmentId}
                 onChange={(e) => {
-                  setFormData({ ...formData, departmentId: e.target.value, categoryId: "" });
+                  setFormData({ ...formData, departmentId: e.target.value, categoryId: "", subCategoryId: "" });
                 }}
                 className="w-full bg-background border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
               >
@@ -144,7 +167,9 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
               <label className="text-sm font-medium">Category</label>
               <select
                 value={formData.categoryId}
-                onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, categoryId: e.target.value, subCategoryId: "" });
+                }}
                 disabled={!formData.departmentId || filteredCategories.length === 0}
                 className="w-full bg-background border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm disabled:opacity-50"
               >
@@ -153,17 +178,95 @@ export function ItemFormModal({ isOpen, onClose, onSuccess, item, departments, c
               </select>
             </div>
           </div>
-          <div className="space-y-1.5">
-             <label className="text-sm font-medium">Status</label>
-             <select
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Sub-Category</label>
+              <select
+                value={formData.subCategoryId}
+                onChange={(e) => setFormData({ ...formData, subCategoryId: e.target.value })}
+                disabled={!formData.categoryId || filteredSubCategories.length === 0}
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm disabled:opacity-50"
+              >
+                <option value="">Select Sub-Category</option>
+                {filteredSubCategories.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Status</label>
+              <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full bg-background border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
               >
                 <option value="Active">Active</option>
-                <option value="Draft">Draft</option>
-                <option value="Archived">Archived</option>
+                  <option value="Draft">Draft</option>
+                  <option value="Archived">Archived</option>
+                </select>
+            </div>
+          </div>
+
+          <div className="h-px bg-border my-2" />
+
+          {/* Specs */}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Spec 1</label>
+              <input 
+                type="text" 
+                value={formData.spec1}
+                onChange={(e) => setFormData({ ...formData, spec1: e.target.value })}
+                className="w-full bg-background border border-border rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs"
+                placeholder="e.g. 16GB"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Spec 2</label>
+              <input 
+                type="text" 
+                value={formData.spec2}
+                onChange={(e) => setFormData({ ...formData, spec2: e.target.value })}
+                className="w-full bg-background border border-border rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs"
+                placeholder="e.g. DDR4"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Spec 3</label>
+              <input 
+                type="text" 
+                value={formData.spec3}
+                onChange={(e) => setFormData({ ...formData, spec3: e.target.value })}
+                className="w-full bg-background border border-border rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-primary text-xs"
+                placeholder="e.g. RGB"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Unit</label>
+              <select
+                value={formData.unit}
+                onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+              >
+                <option value="Nos">Nos</option>
+                <option value="Set">Set</option>
+                <option value="Kg">Kg</option>
+                <option value="Box">Box</option>
+                <option value="Mtr">Mtr</option>
               </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium">Tags</label>
+              <input 
+                type="text" 
+                value={formData.tags}
+                onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                className="w-full bg-background border border-border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
+                placeholder="e.g. premium, fast"
+              />
+            </div>
           </div>
         </div>
 
