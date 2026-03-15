@@ -38,8 +38,8 @@ export default function CategoriesPage() {
       ]);
       const catData = await catRes.json();
       const deptData = await deptRes.json();
-      setCategories(catData);
-      setDepartments(deptData);
+      setCategories(Array.isArray(catData) ? catData : []);
+      setDepartments(Array.isArray(deptData) ? deptData : []);
     } catch (err) {
       toast.error("Failed to load data.");
     } finally {

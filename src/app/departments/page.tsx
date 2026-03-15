@@ -25,7 +25,7 @@ export default function DepartmentsPage() {
     try {
       const res = await fetch("/api/departments");
       const data = await res.json();
-      setDepartments(data);
+      setDepartments(Array.isArray(data) ? data : []);
     } catch (err) {
       toast.error("Failed to load departments.");
     } finally {
