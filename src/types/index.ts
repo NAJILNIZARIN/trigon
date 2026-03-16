@@ -39,6 +39,7 @@ export interface Item {
   basePrice: number;
   margin: number;
   finalPrice: number;
+  description?: string;
   status: string;
   createdAt: string;
   updatedAt: string;

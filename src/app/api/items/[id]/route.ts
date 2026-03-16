@@ -27,7 +27,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const { 
       name, departmentId, categoryId, subCategoryId,
       spec1, spec2, spec3, unit, tags,
-      basePrice, margin, finalPrice, status, breakdowns 
+      basePrice, margin, finalPrice, description, status, breakdowns 
     } = body;
 
     // Delete existing breakdowns and create new ones
@@ -46,6 +46,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         basePrice: Number(basePrice),
         margin: Number(margin),
         finalPrice: Number(finalPrice),
+        description: description || null,
         status: status || "Active",
         breakdowns: {
           deleteMany: {},

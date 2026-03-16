@@ -66,6 +66,15 @@ export default async function ItemDetailPage({ params }: { params: Promise<{ id:
                 <p className="font-semibold text-foreground">{item.category?.name || 'Unassigned'}</p>
               </div>
             </div>
+
+            {item.description && (
+              <div className="space-y-2 pt-4 border-t border-border">
+                <span className="text-sm font-medium text-muted-foreground">Description</span>
+                <p className="text-sm text-foreground/80 leading-relaxed italic">
+                  "{item.description}"
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="bg-card border border-border rounded-xl shadow-sm p-6 space-y-6">

@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     const { 
       name, departmentId, categoryId, subCategoryId,
       spec1, spec2, spec3, unit, tags,
-      basePrice, margin, finalPrice, status, breakdowns 
+      basePrice, margin, finalPrice, description, status, breakdowns 
     } = body;
     
     if (!name || basePrice === undefined || margin === undefined) {
@@ -44,6 +44,7 @@ export async function POST(req: Request) {
         basePrice: Number(basePrice),
         margin: Number(margin),
         finalPrice: Number(finalPrice),
+        description: description || null,
         status: status || "Active",
         breakdowns: breakdowns && breakdowns.length > 0 ? {
           create: breakdowns.map((b: { name: string; amount: number }) => ({

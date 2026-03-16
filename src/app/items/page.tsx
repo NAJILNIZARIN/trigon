@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Plus, Edit2, Trash2, Package, Search, Filter, AlertCircle, Eye } from "lucide-react";
 import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
-import { ItemFormModal } from "@/components/items/ItemFormModal";
 import Link from "next/link";
 import { useData } from "@/providers/DataProvider";
 import { Item } from "@/types";
@@ -13,7 +12,6 @@ export default function ItemsPage() {
   const { items, itemsLoading, refreshItems, departments, categories, subCategories } = useData();
   
   const [searchQuery, setSearchQuery] = useState("");
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
@@ -36,21 +34,6 @@ export default function ItemsPage() {
     }
   };
 
-  const openEdit = (item: Item) => {
-    // We need to fetch item details with breakdowns to populate the form properly
-    fetch(`/api/items/${item.id}`)
-      .then(res => res.json())
-      .then(data => {
-        setSelectedItem(data as Item);
-        setIsFormOpen(true);
-      })
-      .catch(() => toast.error("Failed to fetch item details"));
-  };
-
-  const openCreate = () => {
-    setSelectedItem(null);
-    setIsFormOpen(true);
-  };
 
 
 
@@ -68,13 +51,13 @@ export default function ItemsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Inventory Items</h1>
           <p className="text-muted-foreground mt-1 text-sm">Manage products, pricing, and configurations.</p>
         </div>
-        <button 
-          onClick={openCreate}
+        <Link 
+          href="/items/new"
           className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all shadow-sm active:scale-95"
         >
           <Plus className="w-4 h-4" />
           New Item
-        </button>
+        </Link>
       </div>
 
       <div className="flex items-center gap-3 w-full max-w-sm">
@@ -183,13 +166,13 @@ export default function ItemsPage() {
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
-                          <button 
-                            onClick={() => openEdit(item)}
+                          <Link 
+                            href={`/items/${item.id}/edit`}
                             className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors focus:opacity-100"
                             title="Edit"
                           >
                             <Edit2 className="w-4 h-4" />
-                          </button>
+                          </Link>
                           <button 
                             onClick={() => { setSelectedItem(item); setIsDeleteModalOpen(true); }}
                             className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors focus:opacity-100"
@@ -208,17 +191,6 @@ export default function ItemsPage() {
         )}
       </div>
 
-      <ItemFormModal 
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSuccess={() => {
-          setIsFormOpen(false);
-          refreshData();
-        }}item={selectedItem}
-        departments={departments}
-        categories={categories}
-        subCategories={subCategories}
-      />
 
       <Modal 
         isOpen={isDeleteModalOpen} 

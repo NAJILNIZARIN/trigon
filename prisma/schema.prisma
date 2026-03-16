@@ -57,6 +57,7 @@ model Item {
   basePrice     Float
   margin        Float
   finalPrice    Float
+  description   String?
   status        String       @default("Active")
   breakdowns    Breakdown[]
   createdAt     DateTime     @default(now())
