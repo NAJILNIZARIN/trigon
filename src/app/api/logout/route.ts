@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { origin } = new URL(request.url);
   const cookieStore = await cookies();
 
   // Delete all possible NextAuth session cookies
@@ -17,9 +18,7 @@ export async function GET() {
     "next-auth.callback-url",
   ];
 
-  const response = NextResponse.redirect(new URL("/login", process.env.AUTH_URL || "https://trigon-nine.vercel.app"), {
-    status: 302,
-  });
+  const response = NextResponse.redirect(`${origin}/login`, { status: 302 });
 
   for (const name of cookieNames) {
     response.cookies.set(name, "", {
