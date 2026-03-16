@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Package, ListTree, FolderTree, LayoutDashboard, Layers, FileText, Briefcase, LogOut, CheckSquare } from "lucide-react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -53,7 +53,7 @@ export default function Sidebar() {
 
       <div className="p-4 border-t border-border">
         <button
-          onClick={() => signOut()}
+          onClick={() => { window.location.href = "/api/logout"; }}
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-200 font-medium"
         >
           <LogOut className="w-5 h-5" />

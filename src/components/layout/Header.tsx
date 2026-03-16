@@ -3,7 +3,7 @@
 import { useTheme } from "next-themes";
 import { Sun, Moon, Search, Bell, UserCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -47,7 +47,7 @@ export default function Header() {
             </p>
           </div>
           <button 
-            onClick={() => signOut()}
+            onClick={() => { window.location.href = "/api/logout"; }}
             className="group relative h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-medium shadow-sm hover:bg-primary hover:text-white transition-all active:scale-90"
             title="Logout"
           >
