@@ -3,6 +3,13 @@ import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
+    // Ensure database is in sync - temporary migration fix
+    try {
+      await prisma.$executeRawUnsafe(`ALTER TABLE "Item" ADD COLUMN IF NOT EXISTS "description" TEXT;`);
+    } catch (e) {
+      console.error("Auto-migration failed or already applied:", e);
+    }
+
     const items = await prisma.item.findMany({
       include: { 
         department: true,
