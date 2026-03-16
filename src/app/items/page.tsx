@@ -1,19 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Edit2, Trash2, Package, Search, Filter, AlertCircle, Eye } from "lucide-react";
+import { Plus, Edit2, Trash2, Package, Search, Filter, AlertCircle, Eye, Calculator } from "lucide-react";
 import toast from "react-hot-toast";
 import { Modal } from "@/components/ui/Modal";
 import Link from "next/link";
 import { useData } from "@/providers/DataProvider";
 import { Item } from "@/types";
+import { BreakdownViewer } from "@/components/items/BreakdownViewer";
 
 export default function ItemsPage() {
   const { items, itemsLoading, refreshItems, departments, categories, subCategories } = useData();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isBreakdownModalOpen, setIsBreakdownModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [itemForBreakdown, setItemForBreakdown] = useState<Item | null>(null);
 
   const refreshData = () => {
     refreshItems();
@@ -95,6 +98,7 @@ export default function ItemsPage() {
                   <th className="px-6 py-4 font-medium">Hierarchy</th>
                   <th className="px-6 py-4 font-medium text-right">Price</th>
                   <th className="px-6 py-4 font-medium text-center">Status</th>
+                  <th className="px-6 py-4 font-medium text-center">Breakdown</th>
                   <th className="px-6 py-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
@@ -156,6 +160,20 @@ export default function ItemsPage() {
                         }`}>
                           {item.status}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => { setItemForBreakdown(item); setIsBreakdownModalOpen(true); }}
+                          className={`p-2 rounded-lg transition-all ${
+                            item.breakdowns && item.breakdowns.length > 0
+                              ? "text-primary hover:bg-primary/10"
+                              : "text-muted-foreground/30 cursor-not-allowed"
+                          }`}
+                          title={item.breakdowns && item.breakdowns.length > 0 ? "View Price Breakdown" : "No breakdown available"}
+                          disabled={!item.breakdowns || item.breakdowns.length === 0}
+                        >
+                          <Calculator className="w-4 h-4" />
+                        </button>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -223,6 +241,12 @@ export default function ItemsPage() {
           </div>
         </div>
       </Modal>
+
+      <BreakdownViewer 
+        isOpen={isBreakdownModalOpen} 
+        onClose={() => setIsBreakdownModalOpen(false)} 
+        item={itemForBreakdown} 
+      />
     </div>
   );
 }
