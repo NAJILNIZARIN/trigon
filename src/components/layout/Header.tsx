@@ -3,11 +3,9 @@
 import { useTheme } from "next-themes";
 import { Sun, Moon, Search, Bell, UserCircle } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
-  const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -36,26 +34,8 @@ export default function Header() {
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full"></span>
         </button>
-        
-        <div className="flex items-center gap-3 pl-2 border-l border-border/50">
-          <div className="text-right hidden sm:block">
-            <p className="text-xs font-bold text-foreground leading-tight">
-              {session?.user?.name || "User"}
-            </p>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-              {session?.user?.role || "Member"}
-            </p>
-          </div>
-          <button 
-            onClick={() => { window.location.href = "/api/logout"; }}
-            className="group relative h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-medium shadow-sm hover:bg-primary hover:text-white transition-all active:scale-90"
-            title="Logout"
-          >
-            <UserCircle className="w-7 h-7 group-hover:scale-90 transition-transform" />
-            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-background border-2 border-primary rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
-            </div>
-          </button>
+        <div className="h-8 w-8 rounded-full bg-primary/20 text-primary flex items-center justify-center font-medium shadow-sm">
+          <UserCircle className="w-6 h-6" />
         </div>
       </div>
     </header>

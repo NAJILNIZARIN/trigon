@@ -1,94 +1,256 @@
 "use client";
 
 import React, { useState } from "react";
-import { PackageSearch, Plus, Search, Filter, Edit2, Trash2, Loader2, ListTree, FolderTree } from "lucide-react";
-import useSWR from "swr";
-
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+import { Plus, Edit2, Trash2, Package, Search, Filter, AlertCircle, Eye } from "lucide-react";
+import toast from "react-hot-toast";
+import { Modal } from "@/components/ui/Modal";
+import { ItemFormModal } from "@/components/items/ItemFormModal";
+import Link from "next/link";
+import { useData } from "@/providers/DataProvider";
+import { Item } from "@/types";
 
 export default function ItemsPage() {
-  const { data: items, error, isLoading } = useSWR("/api/items", fetcher);
+  const { items, itemsLoading, refreshItems, departments, categories, subCategories } = useData();
+  
   const [searchQuery, setSearchQuery] = useState("");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
-  const filteredItems = (Array.isArray(items) ? items : []).filter((item: any) => 
-    item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const refreshData = () => {
+    refreshItems();
+  };
+
+
+
+  const handleDelete = async () => {
+    if (!selectedItem) return;
+    try {
+      const res = await fetch(`/api/items/${selectedItem.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete");
+      toast.success("Item deleted!");
+      setIsDeleteModalOpen(false);
+      refreshData();
+    } catch (err) {
+      toast.error("An error occurred while deleting.");
+    }
+  };
+
+  const openEdit = (item: Item) => {
+    // We need to fetch item details with breakdowns to populate the form properly
+    fetch(`/api/items/${item.id}`)
+      .then(res => res.json())
+      .then(data => {
+        setSelectedItem(data as Item);
+        setIsFormOpen(true);
+      })
+      .catch(() => toast.error("Failed to fetch item details"));
+  };
+
+  const openCreate = () => {
+    setSelectedItem(null);
+    setIsFormOpen(true);
+  };
+
+
+
+  const filteredItems = items.filter((item: Item) => 
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.department?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+    item.category?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.subCategory?.name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Items Master</h1>
-          <p className="text-muted-foreground mt-1 text-sm font-medium">Manage and organize your item inventory.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Inventory Items</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Manage products, pricing, and configurations.</p>
         </div>
-        <button className="bg-primary text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-primary/20">
-          <Plus className="w-5 h-5" /> Add New Item
+        <button 
+          onClick={openCreate}
+          className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all shadow-sm active:scale-95"
+        >
+          <Plus className="w-4 h-4" />
+          New Item
         </button>
       </div>
 
-      <div className="relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-        <input 
-          type="text" 
-          placeholder="Search items by name, department, or category..." 
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-card border border-border rounded-2xl py-4 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-sm placeholder:text-muted-foreground/60 shadow-sm"
-        />
+      <div className="flex items-center gap-3 w-full max-w-sm">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input 
+            type="text"
+            placeholder="Search items..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-card border border-border rounded-lg pl-9 pr-4 py-2 outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm shadow-sm"
+          />
+        </div>
+        <button className="p-2 border border-border bg-card rounded-lg text-muted-foreground hover:bg-muted transition-colors shadow-sm">
+          <Filter className="w-4 h-4" />
+        </button>
       </div>
 
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1,2,3,4,5,6].map(i => <div key={i} className="h-64 bg-card/50 border border-border rounded-3xl animate-pulse" />)}
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item: any) => (
-              <div key={item.id} className="bg-card border border-border p-6 rounded-3xl shadow-sm hover:border-primary/50 transition-all group relative overflow-hidden flex flex-col">
-                <div className="flex items-start justify-between gap-4 mb-4">
-                  <div className="p-3.5 bg-primary/10 rounded-2xl">
-                    <ListTree className="w-7 h-7 text-primary" />
-                  </div>
-                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-2.5 bg-muted/50 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-colors"><Edit2 className="w-4 h-4" /></button>
-                    <button className="p-2.5 bg-muted/50 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                </div>
-                
-                <h3 className="font-bold text-xl text-foreground mb-1 group-hover:text-primary transition-colors">{item.name}</h3>
-                
-                <div className="space-y-3 mt-4 pt-4 border-t border-border/50">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground font-medium flex items-center gap-2"><FolderTree className="w-4 h-4 opacity-60" /> Department</span>
-                    <span className="text-foreground font-bold">{item.department?.name || 'Unassigned'}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground font-medium flex items-center gap-2"><Filter className="w-4 h-4 opacity-60" /> Category</span>
-                    <span className="text-foreground font-bold">{item.category?.name || 'Unassigned'}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-4">
-                    <span className="text-2xl font-black text-primary">${item.finalPrice?.toFixed(2)}</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest px-2.5 py-1 bg-primary/10 text-primary rounded-lg border border-primary/20">
-                      {item.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden min-h-[400px]">
+        {itemsLoading && items.length === 0 ? (
+           <div className="p-12 flex flex-col items-center justify-center text-muted-foreground gap-3">
+             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+             <span className="text-sm font-medium">Loading items...</span>
+           </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm whitespace-nowrap">
+              <thead className="bg-muted/50 border-b border-border text-muted-foreground">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Item Info</th>
+                  <th className="px-6 py-4 font-medium">Spec 1</th>
+                  <th className="px-6 py-4 font-medium">Spec 2</th>
+                  <th className="px-6 py-4 font-medium">Spec 3</th>
+                  <th className="px-6 py-4 font-medium">Unit</th>
+                  <th className="px-6 py-4 font-medium">Hierarchy</th>
+                  <th className="px-6 py-4 font-medium text-right">Price</th>
+                  <th className="px-6 py-4 font-medium text-center">Status</th>
+                  <th className="px-6 py-4 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredItems.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center">
+                      <div className="flex flex-col items-center justify-center text-muted-foreground max-w-sm mx-auto">
+                        <Package className="w-10 h-10 mb-4 text-muted/50" />
+                        <h3 className="text-lg font-semibold text-foreground mb-1">No Items Found</h3>
+                        <p className="text-sm text-center mb-4">You haven't added any items or none match your search criteria.</p>
+                      </div>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredItems.map((item) => (
+                    <tr key={item.id} className="hover:bg-muted/30 transition-colors group">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                            <Package className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-foreground text-sm">{item.name}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">ID: {item.id.slice(-6).toUpperCase()}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-muted-foreground">{item.spec1 || '-'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-muted-foreground">{item.spec2 || '-'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-muted-foreground">{item.spec3 || '-'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="bg-muted px-2 py-1 rounded text-xs">{item.unit || 'Nos'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col gap-0.5 text-[10px] leading-tight">
+                          <span className="text-primary font-medium truncate max-w-[100px]" title={item.department?.name}>D: {item.department?.name || '-'}</span>
+                          <span className="text-muted-foreground truncate max-w-[100px]" title={item.category?.name}>C: {item.category?.name || '-'}</span>
+                          <span className="text-muted-foreground/70 truncate max-w-[100px]" title={item.subCategory?.name}>S: {item.subCategory?.name || '-'}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
+                        <div className="flex flex-col items-end">
+                          <span className="font-bold text-foreground">${(item.finalPrice || 0).toFixed(2)}</span>
+                          <span className="text-[10px] text-muted-foreground">Base: ${(item.basePrice || 0).toFixed(2)}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${
+                          item.status === 'Active' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : 
+                          item.status === 'Draft' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' : 
+                          'bg-slate-500/10 text-slate-600 border-slate-500/20'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Link 
+                            href={`/items/${item.id}`} 
+                            className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors focus:opacity-100"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Link>
+                          <button 
+                            onClick={() => openEdit(item)}
+                            className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors focus:opacity-100"
+                            title="Edit"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button 
+                            onClick={() => { setSelectedItem(item); setIsDeleteModalOpen(true); }}
+                            className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors focus:opacity-100"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
+        )}
+      </div>
 
-          {filteredItems.length === 0 && (
-            <div className="py-24 bg-card/40 border-2 border-dashed border-border rounded-[2rem] flex flex-col items-center justify-center text-muted-foreground">
-              <PackageSearch className="w-16 h-16 mb-6 opacity-20" />
-              <p className="font-bold text-xl text-foreground/80">No results found</p>
-              <p className="text-sm mt-1 max-w-xs text-center font-medium">Try adjusting your search query or check back later.</p>
+      <ItemFormModal 
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSuccess={() => {
+          setIsFormOpen(false);
+          refreshData();
+        }}item={selectedItem}
+        departments={departments}
+        categories={categories}
+        subCategories={subCategories}
+      />
+
+      <Modal 
+        isOpen={isDeleteModalOpen} 
+        onClose={() => setIsDeleteModalOpen(false)} 
+        title="Delete Item"
+      >
+        <div className="space-y-4">
+          <div className="flex items-start gap-4 p-4 bg-destructive/10 text-destructive rounded-lg border border-destructive/20">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium mb-1">Are you sure you want to delete this item?</p>
+              <p className="text-sm opacity-90">
+                This item and all its associated cost breakdowns will be permanently deleted.
+              </p>
             </div>
-          )}
-        </>
-      )}
+          </div>
+          <div className="pt-2 flex items-center justify-end gap-3">
+            <button 
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleDelete}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 text-sm font-medium rounded-lg shadow-sm transition-all"
+            >
+              Confirm Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
