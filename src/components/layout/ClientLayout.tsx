@@ -4,12 +4,19 @@ import React from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import { useData } from "@/providers/DataProvider";
-import Link from "next/link";
-import { LayoutDashboard } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const { isValidating } = useData();
-  
+  const pathname = usePathname();
+
+  // Don't show sidebar/header on the login page
+  const isLoginPage = pathname === "/login";
+
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
